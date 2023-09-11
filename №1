@@ -1,0 +1,38 @@
+from urllib.request import urlopen
+import numpy as np
+from PIL import Image, ImageOps
+# Загрузка изображения из Интернета
+url = 'https://upload.wikimedia.org/wikipedia/commons/8/82/UEIT_captured.jpg'
+img = Image.open(urlopen(url))
+# Пункт 1: Вывод размера изображения
+print(img.size)
+# Пункт 2: Отображение исходного изображения
+img.show()
+# Пункт 3: Создание и отображение негатива
+negative_image = ImageOps.invert(img)
+negative_image.show()
+# Пункт 4: Обрезка изображения и отображение
+cropped_img = img.crop((115*2, 144, 115*3, 144*2))
+cropped_img.show()
+# Копирование изображения (глубокая копия не требуется)
+img_copy = img.copy()
+# Преобразование изображения в массив NumPy
+nup_image = np.array(img_copy)
+
+# Пункт 5: Замена каналов G и B значениями канала R
+nup_image[:, :, 1] = nup_image[:, :, 0]
+nup_image[:, :, 2] = nup_image[:, :, 0]
+
+# Преобразование обратно в изображение
+imga4len = Image.fromarray(nup_image)
+imga4len.show()
+
+# Пункт 6: Функция для обнуления цветов
+def color(img):
+    nup_image = np.array(img)
+    mask = nup_image[:, :, 2] > nup_image[:, :, 0] + nup_image[:, :, 1]
+    nup_image[mask] = 0
+    return Image.fromarray(nup_image)
+
+result_image = color(img)
+result_image.show()
