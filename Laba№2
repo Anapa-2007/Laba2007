@@ -1,0 +1,65 @@
+import os
+import numpy as np
+from PIL import Image
+
+# Функция для чтения изображений из указанной папки и преобразования их в одномерные массивы параметров
+def load_images_from_folder(folder):
+    images = []
+    for filename in os.listdir(folder): #проходимся по списку из названий с помощью for
+        img = Image.open(os.path.join(folder, filename))
+        img = img.resize((64, 64))  # Измените размер изображений по вашему усмотрению
+        img = np.array(img)
+        img = img.flatten() # Объединение массивов в одну строку
+        images.append(img)
+    return images
+# Вывод 1 картинки из папки No_Trees
+Image.open('C:/Users/feski/OneDrive/Рабочий стол/Архив фото/NoTrees/AnnualCrop_1.jpg').show()
+# Создание списка файлов в каждой папке
+path_to_trees = 'C:/Users/feski/OneDrive/Рабочий стол/Архив фото/Trees'
+path_to_no_trees = 'C:/Users/feski/OneDrive/Рабочий стол/Архив фото/NoTrees'
+# Обращение к функции load_images_from_folder для работы с массивами
+trees_images = load_images_from_folder(path_to_trees)
+no_trees_images = load_images_from_folder(path_to_no_trees)
+
+# Создание массивов X и y и использование функций заполнения
+X = np.vstack((trees_images, no_trees_images))
+y = np.hstack((np.ones(len(trees_images)), np.zeros(len(no_trees_images))))
+
+# перемешивание значений через метод zip
+combined = list(zip(X, y))
+np.random.shuffle(combined)
+X[:], y[:] = zip(*combined)
+
+# Разделение наборов данных на обучение, кросс-валидацию и тестирование
+train_ratio, val_ratio, test_ratio = 0.6, 0.2, 0.2
+
+total_samples = len(X)
+train_samples = int(train_ratio * total_samples)
+val_samples = int(val_ratio * total_samples)
+
+
+X_train = X[:train_samples]
+y_train = y[:train_samples]
+
+X_val = X[train_samples:train_samples + val_samples]
+y_val = y[train_samples:train_samples + val_samples]
+
+X_test = X[train_samples + val_samples:]
+y_test = y[train_samples + val_samples:]
+
+# Отображение первого изображения и его метки (есть ли на нем деревья)
+def display_image_and_label(image, label):
+    img_width = 64  # Укажите размер изображений, который вы использовали при обработке
+    img_height = 64
+    img = np.reshape(image, (img_width, img_height, 3))
+    img = Image.fromarray(img.astype('uint8'))
+    img.show()
+    if label == 0:
+        print("На изображении нет деревьев.")
+    else:
+        print("На изображении есть деревья.")
+
+# Отображение первых изображений и их меток для каждого набора данных
+display_image_and_label(X_train[0], y_train[0])
+display_image_and_label(X_val[0], y_val[0])
+display_image_and_label(X_test[0], y_test[0])
