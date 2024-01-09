@@ -1,0 +1,55 @@
+"""Функция для рассчета времени, проведенного в ресторане"""
+def Times(start, finish):
+    mas_time = []
+    for i in range (len(finish)):
+        hour, minute = start[i].split(':')
+        start_minute = int(hour)*60+int(minute)
+        hour, minute = finish[i].split(':')
+        finish_minute = int(hour)*60+int(minute)
+        mas_time.append(finish_minute-start_minute)
+    return mas_time
+
+"""Выделение массивов данных из файла"""
+def Massivs(a):
+    mas1, mas2 = [], []
+    mas3, mas4 = [], []
+    for i in range(1, int(a[0]) + 1):
+        numbers1, numbers2, price, type_k = (a[i].split())
+        mas1.append(numbers1)
+        mas2.append(numbers2)
+        mas3.append(int(price))
+        mas4.append(type_k)
+    return Times(mas1, mas2), mas3, mas4
+
+with open(r'C:\Users\feski\Downloads\26nomer.txt', "r") as f: #чтение файла по расположению
+    f = f.readlines()
+    time, price, types = Massivs(f) #обращение к функции
+    cost, cost2 = [], []
+    a, b, c = 0, 0, 0
+    for i in range(len(time)):
+        cost.append((time[i]/60)*price[i])
+        if types[i] == 'a':
+            cost2.append(cost[i]*0.9)
+            a += cost[i]*0.9
+        if types[i] == 'b':
+            if time[i] >= 60:
+                cost2.append(cost[i] * 0.8)
+                b += cost[i] * 0.8
+            else:
+                cost2.append(cost[i])
+        if types[i] == 'c':
+            if time[i] >= 90:
+                cost2.append(cost[i] * 0.7)
+                c += cost[i] * 0.7
+            else:
+                cost2.append(cost[i])
+        if types[i] == 'd':
+            if time[i] >= 120:
+                cost2.append(cost[i] * 0.6)
+            else:
+                cost2.append(cost[i])
+
+    cost2 = [a, b, c, sum(cost2)-a-b-c]
+    print(max(cost),'Максимальная сумма, которую получил ресторан за день')
+    print("a b c d")
+    print(cost2)
